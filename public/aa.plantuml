@@ -1,0 +1,32 @@
+<<<<<<< Tabnine <<<<<<<
+@startuml//-
+@startuml "Web Bán Chè Trực Tuyến"//+
+!define USECASE(name) usecase name as "name"
+
+actor KhachHang as KH
+actor QuanTriVien as QTV
+
+rectangle "Web Bán Chè Trực Tuyến" {
+    USECASE("Đăng ký tài khoản") as UC1
+    USECASE("Đăng nhập") as UC2
+    USECASE("Xem sản phẩm") as UC3
+    USECASE("Thêm sản phẩm vào giỏ hàng") as UC4
+    USECASE("Thanh toán") as UC5
+    USECASE("Quản lý đơn hàng") as UC6
+    USECASE("Quản lý sản phẩm") as UC7
+    USECASE("Xem báo cáo doanh thu") as UC8
+}
+
+KH --> UC1
+KH --> UC2
+KH --> UC3
+KH --> UC4
+KH --> UC5
+
+QTV --> UC2
+QTV --> UC6
+QTV --> UC7
+QTV --> UC8
+
+@enduml
+>>>>>>> Tabnine >>>>>>>// {"conversationId":"a3582559-4f31-49d9-9603-98335b424c45","source":"instruct"}
