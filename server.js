@@ -144,6 +144,23 @@ app.patch('/products/:id', (req, res) => {
         res.json({ message: 'Cập nhật số lượng sản phẩm thành công' });
     });
 });
+app.post('/products', upload.single('image'), (req, res) => {
+    const { name, price, description, quality } = req.body;
+    const image_path = req.file ? req.file.path : null;
+
+    const sql = 'INSERT INTO products (name, price, description, quality, image_path) VALUES (?, ?, ?, ?, ?)';
+    
+    db.query(sql, [name, price, description, quality, image_path], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: 'Lỗi khi thêm sản phẩm' });
+        }
+        res.status(201).json({ 
+            message: 'Thêm sản phẩm thành công',
+            productId: result.insertId 
+        });
+    });
+});
+
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
