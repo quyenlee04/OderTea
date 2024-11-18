@@ -161,6 +161,46 @@ app.post('/products', upload.single('image'), (req, res) => {
     });
 });
 
+app.delete('/products/:id', (req, res) => {
+    const productId = req.params.id;
+    const sql = 'DELETE FROM products WHERE id = ?';
+    
+    db.query(sql, [productId], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: 'Lỗi khi xóa sản phẩm' });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Không tìm thấy sản phẩm' });
+        }
+        res.json({ message: 'Xóa sản phẩm thành công' });
+    });
+});
+app.put('/products/:id', upload.single('image'), (req, res) => {
+    const productId = req.params.id;
+    const { name, price, description, quality } = req.body;
+    const image_path = req.file ? req.file.path : null;
+
+    let sql, params;
+    
+    if (image_path) {
+        sql = 'UPDATE products SET name = ?, price = ?, description = ?, quality = ?, image_path = ? WHERE id = ?';
+        params = [name, price, description, quality, image_path, productId];
+    } else {
+        sql = 'UPDATE products SET name = ?, price = ?, description = ?, quality = ? WHERE id = ?';
+        params = [name, price, description, quality, productId];
+    }
+
+    db.query(sql, params, (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: 'Lỗi khi cập nhật sản phẩm' });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Không tìm thấy sản phẩm' });
+        }
+        res.json({ message: 'Cập nhật sản phẩm thành công' });
+    });
+});
+
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });

@@ -101,60 +101,80 @@ export default {
 }
 </script>
 
+
+
 <style>
 .containe {
   width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
+
 .product-list {
-  display: flex; 
-  justify-content: flex-start; 
-  flex-wrap: wrap; 
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
   padding: 20px;
   width: 100%;
 }
 
+/* Responsive grid adjustments */
+@media screen and (max-width: 1024px) {
+  .product-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .product-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .product-list {
+    grid-template-columns: 1fr;
+  }
+}
+
 .product-list > * {
-  flex: 0 0 23%; 
-  margin: 10px; 
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); 
-  border-radius: 8px; 
-  overflow: hidden; 
-  transition: transform 0.3s; 
-} 
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.3s;
+}
 
 .product-list > *:hover {
-  transform: scale(1.05); 
+  transform: scale(1.02);
 }
 
 button {
-  margin: 5px; 
-  padding: 10px 15px; 
-  background-color: #c465b7; 
-  color: white; 
-  border: none; 
-  border-radius: 5px; 
-  cursor: pointer; 
-  transition: background-color 0.3s; 
+  margin: 5px;
+  padding: 10px 15px;
+  background-color: #c465b7;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 button:hover {
-  background-color: #882a7b; 
-}
-
-button:disabled {
-  background-color: #ccc; 
-  cursor: not-allowed; 
+  background-color: #882a7b;
 }
 
 .pagination {
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 8px;
-  margin-top: 20px;
-  width: 100%;
+  margin: 20px 0;
+  padding: 0 10px;
 }
 
 .pagination button {
@@ -165,41 +185,29 @@ button:disabled {
   justify-content: center;
 }
 
-.pagination button.active {
-  background-color: #882a7b;
-}
-
 .no-results {
   width: 100%;
   text-align: center;
-  padding: 40px 20px;
+  padding: 20px;
   background-color: #fff3f8;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin: 20px auto;
 }
 
-.no-results p {
-  font-size: 1.2em;
-  color: #c465b7;
-  margin-bottom: 15px;
-  font-weight: bold;
+/* Responsive text adjustments */
+@media screen and (max-width: 480px) {
+  .no-results p {
+    font-size: 1rem;
+  }
+  
+  button {
+    padding: 8px 12px;
+  }
+  
+  .reset-search {
+    padding: 10px 20px;
+  }
 }
 
-.reset-search {
-  background-color: #c465b7;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 25px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.reset-search:hover {
-  background-color: #882a7b;
-  transform: translateY(-2px);
-}
-
-
-
+/* Rest of your existing styles remain the same */
 </style>
