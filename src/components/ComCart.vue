@@ -105,7 +105,7 @@ export default {
       this.cart.forEach(item => {
         this.updateProductQuantity(item.id, item.quality); 
       });
-      this.cart = []; // Xóa hết giỏ hàng
+      this.cart = []; 
       this.updateLocalStorage();
     },
     updateLocalStorage() {
@@ -120,7 +120,7 @@ export default {
 
 <style>
 .input {
-    width: 40px; /* Điều chỉnh chiều rộng của ô nhập số lượng */
-    text-align: center; /* Căn giữa nội dung bên trong ô nhập */
+    width: 40px;
+    text-align: center; 
 }
 </style>

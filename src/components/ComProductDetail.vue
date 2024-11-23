@@ -61,7 +61,7 @@ export default {
         if (product.quality > 0) {
           infoproduct.quantity += 1;
           product.quality--;
-          this.updateProductQuantity(product.id, product.quality);
+           this.updateProductQuantity(product.id, product.quality);
           this.showSuccessMessage(product.name);
         } else {
           this.showOutOfStockMessage();
@@ -71,7 +71,7 @@ export default {
           const newproduct = { ...product, quantity: 1 };
           this.cart.push(newproduct);
           product.quality--;
-          this.updateProductQuantity(product.id, product.quality);
+           this.updateProductQuantity(product.id, product.quality);
           this.showSuccessMessage(product.name);
         } else {
           this.showOutOfStockMessage();

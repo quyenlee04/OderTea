@@ -1,4 +1,8 @@
 <template>
+
+      <div class="banner">
+        <img src="/Images/BannerChe.png" alt="quyenle">
+      </div>
   <div class="containe">
     <div class="product-list">
       <Product v-for="item in filterproduct" :key="item.id" :product="item" />
@@ -208,6 +212,42 @@ button:hover {
     padding: 10px 20px;
   }
 }
+
+.banner {
+  width: 100%;
+  height: auto;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+.banner img {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 1024px) {
+  .banner img {
+    height: 350px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .banner img {
+    height: 300px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .banner img {
+    height: 200px;
+  }
+}
+
 
 /* Rest of your existing styles remain the same */
 </style>
