@@ -160,7 +160,7 @@ export default {
 button {
   margin: 5px;
   padding: 10px 15px;
-  background-color: #c465b7;
+  background-color: #b63aa5;
   color: white;
   border: none;
   border-radius: 5px;
@@ -169,7 +169,7 @@ button {
 }
 
 button:hover {
-  background-color: #882a7b;
+  background-color: #e9c4e4;
 }
 
 .pagination {
@@ -247,7 +247,4 @@ button:hover {
     height: 200px;
   }
 }
-
-
-/* Rest of your existing styles remain the same */
 </style>
