@@ -1,0 +1,131 @@
+extends ../layouts/admin
+
+block content
+  .order-details
+    .card.mb-4
+      .card-header
+        .d-flex.justify-content-between.align-items-center
+          h4 Chi tiết đơn hàng ##{order.id}
+          span(class=`status-badge status-${order.status}`)= getStatusText(order.status)
+      .card-body
+        .row
+          .col-md-6
+            h5 Thông tin khách hàng
+            table.table.table-borderless
+              tbody
+                tr
+                  th Tên khách hàng:
+                  td #{order.user_fullname || 'N/A'}
+                tr
+                  th Email:
+                  td #{order.user_email || 'N/A'}
+                tr
+                  th Số điện thoại:
+                  td #{order.user_phone || 'N/A'}
+          .col-md-6
+            h5 Thông tin đơn hàng
+            table.table.table-borderless
+              tbody
+                tr
+                  th Ngày đặt:
+                  td #{new Date(order.created_at).toLocaleString('vi-VN')}
+                tr
+                  th Địa chỉ giao hàng:
+                  td #{order.shipping_address}
+                tr
+                  th Phương thức thanh toán:
+                  td #{order.payment_method}
+    
+    .card.mb-4
+      .card-header
+        h4 Sản phẩm trong đơn hàng
+      .card-body
+        .table-responsive
+          table.table.table-striped
+            thead
+              tr
+                th Sản phẩm
+                th Đơn giá
+                th Số lượng
+                th Thành tiền
+            tbody
+              each item in order.items
+                tr
+                  td
+                    .product-info
+                      if item.image_path
+                        img.product-thumbnail(src=`/${item.image_path}` alt=item.name)
+                      else
+                        img.product-thumbnail(src="/static/img/no-image.png" alt="No image")
+                      span.product-name #{item.name}
+                  td #{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price)}
+                  td #{item.quantity}
+                  td #{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price * item.quantity)}
+            tfoot
+              tr
+                th(colspan="3") Tổng cộng
+                th #{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.total_amount)}
+    
+    .card
+      .card-header
+        h4 Cập nhật trạng thái
+      .card-body
+        form#updateStatusForm
+          .row
+            .col-md-8
+              select#orderStatus.form-select(name="status")
+                option(value="pending" selected=order.status === 'pending') Chờ xử lý
+                option(value="processing" selected=order.status === 'processing') Đang xử lý
+                option(value="shipped" selected=order.status === 'shipped') Đang giao
+                option(value="delivered" selected=order.status === 'delivered') Đã giao
+                option(value="cancelled" selected=order.status === 'cancelled') Đã hủy
+            .col-md-4
+              button#updateStatusBtn.btn.btn-primary.w-100(type="button") Cập nhật trạng thái
+    
+    .mt-4
+      a.btn.btn-secondary(href="/admin/orders")
+        i.fas.fa-arrow-left.me-2
+        | Quay lại danh sách đơn hàng
+
+block scripts
+  script.
+    // Helper function to convert status to Vietnamese
+    function getStatusText(status) {
+      const statusMap = {
+        'pending': 'Chờ xử lý',
+        'processing': 'Đang xử lý',
+        'shipped': 'Đang giao',
+        'delivered': 'Đã giao',
+        'cancelled': 'Đã hủy'
+      };
+      return statusMap[status] || status;
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      // Update status
+      document.getElementById('updateStatusBtn').addEventListener('click', function() {
+        const orderId = '#{order.id}';
+        const status = document.getElementById('orderStatus').value;
+        
+        fetch(`/api/orders/${orderId}/status`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ status })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.message) {
+            alert('Cập nhật trạng thái đơn hàng thành công!');
+            location.reload();
+          } else {
+            alert('Lỗi: ' + data.error);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Đã xảy ra lỗi khi cập nhật trạng thái đơn hàng');
+        });
+      });
+    });

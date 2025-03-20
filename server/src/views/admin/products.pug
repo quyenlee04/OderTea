@@ -1,0 +1,222 @@
+extends ../layouts/admin
+
+block content
+  .products-management
+    .action-bar
+      button.btn.btn-primary(data-bs-toggle="modal" data-bs-target="#addProductModal")
+        i.fas.fa-plus
+        span Thêm sản phẩm mới
+      
+      .search-box
+        input.form-control(type="text" placeholder="Tìm kiếm sản phẩm...")
+        button.btn.btn-outline-secondary
+          i.fas.fa-search
+    
+    .table-responsive
+      table.table.table-striped.table-hover
+        thead
+          tr
+            th ID
+            th Hình ảnh
+            th Tên sản phẩm
+            th Giá
+            th Số lượng
+            th Thao tác
+        tbody
+          each product in products
+            tr
+              td= product.id
+              td
+                if product.image_path
+                  img.product-thumbnail(src=`/${product.image_path}` alt=product.name)
+                else
+                  img.product-thumbnail(src="/static/img/no-image.png" alt="No image")
+              td= product.name
+              td= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)
+              td= product.quality
+              td
+                button.btn.btn-sm.btn-info.me-1(data-bs-toggle="modal" data-bs-target="#editProductModal" data-id=product.id)
+                  i.fas.fa-edit
+                button.btn.btn-sm.btn-danger.delete-product(data-id=product.id)
+                  i.fas.fa-trash
+  
+  // Add Product Modal
+  #addProductModal.modal.fade
+    .modal-dialog
+      .modal-content
+        .modal-header
+          h5.modal-title Thêm sản phẩm mới
+          button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+        .modal-body
+          form#addProductForm(enctype="multipart/form-data")
+            .mb-3
+              label.form-label(for="productName") Tên sản phẩm
+              input#productName.form-control(type="text" name="name" required)
+            
+            .mb-3
+              label.form-label(for="productPrice") Giá (VND)
+              input#productPrice.form-control(type="number" name="price" required)
+            
+            .mb-3
+              label.form-label(for="productQuantity") Số lượng
+              input#productQuantity.form-control(type="number" name="quality" required)
+            
+            .mb-3
+              label.form-label(for="productDescription") Mô tả
+              textarea#productDescription.form-control(name="description" rows="3")
+            
+            .mb-3
+              label.form-label(for="productImage") Hình ảnh
+              input#productImage.form-control(type="file" name="image_path")
+            
+        .modal-footer
+          button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Hủy
+          button#addProductBtn.btn.btn-primary(type="button") Thêm sản phẩm
+  
+  // Edit Product Modal
+  #editProductModal.modal.fade
+    .modal-dialog
+      .modal-content
+        .modal-header
+          h5.modal-title Chỉnh sửa sản phẩm
+          button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+        .modal-body
+          form#editProductForm(enctype="multipart/form-data")
+            input#editProductId(type="hidden" name="id")
+            
+            .mb-3
+              label.form-label(for="editProductName") Tên sản phẩm
+              input#editProductName.form-control(type="text" name="name" required)
+            
+            .mb-3
+              label.form-label(for="editProductPrice") Giá (VND)
+              input#editProductPrice.form-control(type="number" name="price" required)
+            
+            .mb-3
+              label.form-label(for="editProductQuantity") Số lượng
+              input#editProductQuantity.form-control(type="number" name="quality" required)
+            
+            .mb-3
+              label.form-label(for="editProductDescription") Mô tả
+              textarea#editProductDescription.form-control(name="description" rows="3")
+            
+            .mb-3
+              label.form-label(for="editProductImage") Hình ảnh mới (để trống nếu không thay đổi)
+              input#editProductImage.form-control(type="file" name="image_path")
+              
+            .mb-3
+              .current-image-container
+                p Hình ảnh hiện tại:
+                img#currentProductImage.img-thumbnail(src="" alt="Current product image")
+            
+        .modal-footer
+          button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Hủy
+          button#updateProductBtn.btn.btn-primary(type="button") Cập nhật
+
+block scripts
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add product form submission
+      document.getElementById('addProductBtn').addEventListener('click', function() {
+        const form = document.getElementById('addProductForm');
+        const formData = new FormData(form);
+        
+        fetch('/api/products', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.message) {
+            alert('Thêm sản phẩm thành công!');
+            location.reload();
+          } else {
+            alert('Lỗi: ' + data.error);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Đã xảy ra lỗi khi thêm sản phẩm');
+        });
+      });
+      
+      // Edit product modal
+      const editModal = document.getElementById('editProductModal');
+      editModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const productId = button.getAttribute('data-id');
+        
+        // Fetch product details
+        fetch(`/api/products/${productId}`)
+          .then(response => response.json())
+          .then(product => {
+            document.getElementById('editProductId').value = product.id;
+            document.getElementById('editProductName').value = product.name;
+            document.getElementById('editProductPrice').value = product.price;
+            document.getElementById('editProductQuantity').value = product.quality;
+            document.getElementById('editProductDescription').value = product.description;
+            
+            const currentImage = document.getElementById('currentProductImage');
+            if (product.image_path) {
+              currentImage.src = `/${product.image_path}`;
+            } else {
+              currentImage.src = '/static/img/no-image.png';
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('Đã xảy ra lỗi khi tải thông tin sản phẩm');
+          });
+      });
+      
+      // Update product
+      document.getElementById('updateProductBtn').addEventListener('click', function() {
+        const form = document.getElementById('editProductForm');
+        const formData = new FormData(form);
+        const productId = document.getElementById('editProductId').value;
+        
+        fetch(`/api/products/${productId}`, {
+          method: 'PUT',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.message) {
+            alert('Cập nhật sản phẩm thành công!');
+            location.reload();
+          } else {
+            alert('Lỗi: ' + data.error);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Đã xảy ra lỗi khi cập nhật sản phẩm');
+        });
+      });
+      
+      // Delete product
+      document.querySelectorAll('.delete-product').forEach(button => {
+        button.addEventListener('click', function() {
+          const productId = this.getAttribute('data-id');
+          
+          if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+            fetch(`/api/products/${productId}`, {
+              method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.message) {
+                alert('Xóa sản phẩm thành công!');
+                location.reload();
+              } else {
+                alert('Lỗi: ' + data.error);
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              alert('Đã xảy ra lỗi khi xóa sản phẩm');
+            });
+          }
+        });
+      });
+    });

@@ -1,0 +1,38 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor Customer
+actor Admin
+actor Staff
+
+rectangle "Hệ thống bán chè trực tuyến" {
+  ' Customer use cases
+  Customer --> (Xem danh sách sản phẩm)
+  Customer --> (Tìm kiếm sản phẩm)
+  Customer --> (Đăng ký tài khoản)
+  Customer --> (Đăng nhập)
+  Customer --> (Thêm vào giỏ hàng)
+  Customer --> (Đặt hàng)
+  Customer --> (Thanh toán)
+  Customer --> (Xem lịch sử đơn hàng)
+  Customer --> (Đánh giá sản phẩm)
+  Customer --> (Quản lý thông tin cá nhân)
+
+  ' Admin use cases
+  Admin --> (Quản lý danh mục sản phẩm)
+  Admin --> (Quản lý sản phẩm)
+  Admin --> (Quản lý đơn hàng)
+  Admin --> (Quản lý người dùng)
+  Admin --> (Quản lý nhân viên)
+  Admin --> (Xem báo cáo doanh thu)
+  Admin --> (Quản lý khuyến mãi)
+  Admin --> (Quản lý banner/slider)
+
+  ' Staff use cases
+  Staff --> (Xử lý đơn hàng)
+  Staff --> (Cập nhật trạng thái đơn hàng)
+  Staff --> (Xem thông tin khách hàng)
+  Staff --> (Hỗ trợ khách hàng)
+}
+@enduml

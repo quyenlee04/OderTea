@@ -1,0 +1,276 @@
+extends ../layouts/admin
+
+block content
+  .users-management
+    .action-bar
+      button.btn.btn-primary(data-bs-toggle="modal" data-bs-target="#addUserModal")
+        i.fas.fa-plus
+        span Thêm người dùng mới
+      
+      .search-box
+        form#searchForm(action="/admin/users" method="GET")
+          .input-group
+            input.form-control(type="text" name="search" placeholder="Tìm kiếm người dùng..." value=searchTerm)
+            button.btn.btn-outline-secondary(type="submit")
+              i.fas.fa-search
+    
+    .table-responsive
+      table.table.table-striped.table-hover
+        thead
+          tr
+            th ID
+            th Tên đăng nhập
+            th Họ tên
+            th Email
+            th Số điện thoại
+            th Vai trò
+            th Thao tác
+        tbody
+          each user in users
+            tr
+              td= user.id
+              td= user.username
+              td= user.fullname
+              td= user.email
+              td= user.phone
+              td
+                span(class=`role-badge role-${user.role}`)= getRoleText(user.role)
+              td
+                button.btn.btn-sm.btn-info.me-1(data-bs-toggle="modal" data-bs-target="#editUserModal" data-id=user.id)
+                  i.fas.fa-edit
+                button.btn.btn-sm.btn-danger.delete-user(data-id=user.id)
+                  i.fas.fa-trash
+  
+  // Add User Modal
+  #addUserModal.modal.fade
+    .modal-dialog
+      .modal-content
+        .modal-header
+          h5.modal-title Thêm người dùng mới
+          button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+        .modal-body
+          form#addUserForm
+            .mb-3
+              label.form-label(for="username") Tên đăng nhập
+              input#username.form-control(type="text" name="username" required)
+            
+            .mb-3
+              label.form-label(for="fullname") Họ tên
+              input#fullname.form-control(type="text" name="fullname" required)
+            
+            .mb-3
+              label.form-label(for="email") Email
+              input#email.form-control(type="email" name="email" required)
+            
+            .mb-3
+              label.form-label(for="phone") Số điện thoại
+              input#phone.form-control(type="text" name="phone" required)
+            
+            .mb-3
+              label.form-label(for="address") Địa chỉ
+              textarea#address.form-control(name="address" rows="2")
+            
+            .mb-3
+              label.form-label(for="password") Mật khẩu
+              input#password.form-control(type="password" name="password" required)
+            
+            .mb-3
+              label.form-label(for="role") Vai trò
+              select#role.form-select(name="role" required)
+                option(value="customer") Khách hàng
+                option(value="staff") Nhân viên
+                option(value="admin") Quản trị viên
+            
+        .modal-footer
+          button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Hủy
+          button#addUserBtn.btn.btn-primary(type="button") Thêm người dùng
+  
+  // Edit User Modal
+  #editUserModal.modal.fade
+    .modal-dialog
+      .modal-content
+        .modal-header
+          h5.modal-title Chỉnh sửa người dùng
+          button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+        .modal-body
+          form#editUserForm
+            input#editUserId(type="hidden" name="id")
+            
+            .mb-3
+              label.form-label(for="editUsername") Tên đăng nhập
+              input#editUsername.form-control(type="text" name="username" readonly)
+            
+            .mb-3
+              label.form-label(for="editFullname") Họ tên
+              input#editFullname.form-control(type="text" name="fullname" required)
+            
+            .mb-3
+              label.form-label(for="editEmail") Email
+              input#editEmail.form-control(type="email" name="email" required)
+            
+            .mb-3
+              label.form-label(for="editPhone") Số điện thoại
+              input#editPhone.form-control(type="text" name="phone" required)
+            
+            .mb-3
+              label.form-label(for="editAddress") Địa chỉ
+              textarea#editAddress.form-control(name="address" rows="2")
+            
+            .mb-3
+              label.form-label(for="editRole") Vai trò
+              select#editRole.form-select(name="role" required)
+                option(value="customer") Khách hàng
+                option(value="staff") Nhân viên
+                option(value="admin") Quản trị viên
+            
+            .mb-3
+              label.form-label(for="editPassword") Mật khẩu mới (để trống nếu không thay đổi)
+              input#editPassword.form-control(type="password" name="password")
+            
+        .modal-footer
+          button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Hủy
+          button#updateUserBtn.btn.btn-primary(type="button") Cập nhật
+
+block scripts
+  script.
+    // Helper function to convert role to Vietnamese
+    function getRoleText(role) {
+      const roleMap = {
+        'customer': 'Khách hàng',
+        'staff': 'Nhân viên',
+        'admin': 'Quản trị viên'
+      };
+      return roleMap[role] || role;
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      // Search form submission
+      const searchForm = document.getElementById('searchForm');
+      const searchInput = searchForm.querySelector('input[name="search"]');
+      
+      // Clear search when X button is clicked
+      if (searchInput.value) {
+        const clearButton = document.createElement('button');
+        clearButton.type = 'button';
+        clearButton.className = 'btn btn-outline-secondary';
+        clearButton.innerHTML = '<i class="fas fa-times"></i>';
+        clearButton.addEventListener('click', function() {
+          searchInput.value = '';
+          searchForm.submit();
+        });
+        
+        searchForm.querySelector('.input-group').appendChild(clearButton);
+      }
+      
+      // Add user form submission
+      document.getElementById('addUserBtn').addEventListener('click', function() {
+        const form = document.getElementById('addUserForm');
+        const formData = new FormData(form);
+        const userData = Object.fromEntries(formData.entries());
+        
+        fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(userData)
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.message) {
+            alert('Thêm người dùng thành công!');
+            location.reload();
+          } else {
+            alert('Lỗi: ' + data.error);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Đã xảy ra lỗi khi thêm người dùng');
+        });
+      });
+      
+      // Edit user modal
+      const editModal = document.getElementById('editUserModal');
+      editModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const userId = button.getAttribute('data-id');
+        
+        // Fetch user details
+        fetch(`/api/users/${userId}`)
+          .then(response => response.json())
+          .then(user => {
+            document.getElementById('editUserId').value = user.id;
+            document.getElementById('editUsername').value = user.username;
+            document.getElementById('editFullname').value = user.fullname;
+            document.getElementById('editEmail').value = user.email;
+            document.getElementById('editPhone').value = user.phone;
+            document.getElementById('editAddress').value = user.address;
+            document.getElementById('editRole').value = user.role;
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('Đã xảy ra lỗi khi tải thông tin người dùng');
+          });
+      });
+      
+      // Update user
+      document.getElementById('updateUserBtn').addEventListener('click', function() {
+        const form = document.getElementById('editUserForm');
+        const formData = new FormData(form);
+        const userId = document.getElementById('editUserId').value;
+        const userData = Object.fromEntries(formData.entries());
+        
+        // Remove password if empty
+        if (!userData.password) {
+          delete userData.password;
+        }
+        
+        fetch(`/api/users/${userId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(userData)
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.message) {
+            alert('Cập nhật người dùng thành công!');
+            location.reload();
+          } else {
+            alert('Lỗi: ' + data.error);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Đã xảy ra lỗi khi cập nhật người dùng');
+        });
+      });
+      
+      // Delete user
+      document.querySelectorAll('.delete-user').forEach(button => {
+        button.addEventListener('click', function() {
+          const userId = this.getAttribute('data-id');
+          
+          if (confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
+            fetch(`/api/users/${userId}`, {
+              method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.message) {
+                alert('Xóa người dùng thành công!');
+                location.reload();
+              } else {
+                alert('Lỗi: ' + data.error);
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              alert('Đã xảy ra lỗi khi xóa người dùng');
+            });
+          }
+        });
+      });
+    });

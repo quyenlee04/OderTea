@@ -1,0 +1,68 @@
+extends ../layouts/admin
+
+block content
+  .dashboard
+    h2.mb-4 Dashboard
+    
+    .row
+      .col-md-3
+        .stat-card
+          .stat-card-header
+            h5 Sản phẩm
+            i.fas.fa-box
+          .stat-card-body
+            h2 #{stats.productCount}
+          .stat-card-footer
+            span Tổng số sản phẩm
+      
+      .col-md-3
+        .stat-card
+          .stat-card-header
+            h5 Đơn hàng
+            i.fas.fa-shopping-cart
+          .stat-card-body
+            h2 #{stats.orderCount}
+          .stat-card-footer
+            span Tổng số đơn hàng
+      
+      .col-md-3
+        .stat-card
+          .stat-card-header
+            h5 Người dùng
+            i.fas.fa-users
+          .stat-card-body
+            h2 #{stats.userCount}
+          .stat-card-footer
+            span Tổng số người dùng
+      
+      .col-md-3
+        .stat-card
+          .stat-card-header
+            h5 Doanh thu
+            i.fas.fa-money-bill-wave
+          .stat-card-body
+            h2 #{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(stats.totalRevenue)}
+          .stat-card-footer
+            span Tổng doanh thu
+    
+    //- .row.mt-4
+      .col-md-12
+        .card
+          .card-header
+            h4 Đơn hàng gần đây
+          .card-body
+            .table-responsive
+              table.table.table-striped
+                thead
+                  tr
+                    th ID
+                    th Khách hàng
+                    th Ngày đặt
+                    th Tổng tiền
+                    th Trạng thái
+                    th
+                tbody
+                  
+            
+            .text-end.mt-3
+              a.btn.btn-primary(href="/admin/orders") Xem tất cả đơn hàng

@@ -1,0 +1,9 @@
+extends ../layouts/admin
+
+block content
+  .error-container.text-center.py-5
+    .alert.alert-danger
+      h3 Lỗi
+      p #{message || 'Đã xảy ra lỗi không xác định'}
+    
+    a.btn.btn-primary.mt-3(href="/admin/dashboard") Quay lại Dashboard

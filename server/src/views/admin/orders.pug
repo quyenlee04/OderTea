@@ -1,0 +1,145 @@
+extends ../layouts/admin
+
+block content
+  .orders-management
+    .action-bar
+      .filter-box
+        select.form-select#statusFilter
+          option(value="") Tất cả trạng thái
+          option(value="pending") Chờ xử lý
+          option(value="processing") Đang xử lý
+          option(value="shipped") Đang giao
+          option(value="delivered") Đã giao
+          option(value="cancelled") Đã hủy
+      
+      .search-box
+        input.form-control(type="text" placeholder="Tìm kiếm đơn hàng...")
+        button.btn.btn-outline-secondary
+          i.fas.fa-search
+    
+    .table-responsive
+      table.table.table-striped.table-hover
+        thead
+          tr
+            th ID
+            th Khách hàng
+            th Ngày đặt
+            th Tổng tiền
+            th Số lượng SP
+            th Trạng thái
+            th Thao tác
+        tbody
+          each order in orders
+            tr
+              td= order.id
+              td= order.fullname
+              td= new Date(order.created_at).toLocaleDateString('vi-VN')
+              td= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.total_amount)
+              td= order.item_count
+              td
+                span(class=`status-badge status-${order.status}`)= getStatusText(order.status)
+              td
+                a.btn.btn-sm.btn-info.me-1(href=`/admin/orders/${order.id}`)
+                  i.fas.fa-eye
+                button.btn.btn-sm.btn-primary.update-status(data-bs-toggle="modal" data-bs-target="#updateStatusModal" data-id=order.id data-status=order.status)
+                  i.fas.fa-edit
+    
+    .pagination-container
+      if pagination.totalPages > 1
+        nav
+          ul.pagination
+            if pagination.currentPage > 1
+              li.page-item
+                a.page-link(href=`/admin/orders?page=${pagination.currentPage - 1}`) Trước
+            
+            - for (let i = 1; i <= pagination.totalPages; i++)
+              li.page-item(class=i === pagination.currentPage ? 'active' : '')
+                a.page-link(href=`/admin/orders?page=${i}`)= i
+            
+            if pagination.currentPage < pagination.totalPages
+              li.page-item
+                a.page-link(href=`/admin/orders?page=${pagination.currentPage + 1}`) Sau
+  
+  // Update Status Modal
+  #updateStatusModal.modal.fade
+    .modal-dialog
+      .modal-content
+        .modal-header
+          h5.modal-title Cập nhật trạng thái đơn hàng
+          button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+        .modal-body
+          form#updateStatusForm
+            input#orderId(type="hidden" name="id")
+            
+            .mb-3
+              label.form-label(for="orderStatus") Trạng thái
+              select#orderStatus.form-select(name="status" required)
+                option(value="pending") Chờ xử lý
+                option(value="processing") Đang xử lý
+                option(value="shipped") Đang giao
+                option(value="delivered") Đã giao
+                option(value="cancelled") Đã hủy
+            
+        .modal-footer
+          button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Hủy
+          button#updateStatusBtn.btn.btn-primary(type="button") Cập nhật
+
+block scripts
+  script.
+    // Helper function to convert status to Vietnamese
+    function getStatusText(status) {
+      const statusMap = {
+        'pending': 'Chờ xử lý',
+        'processing': 'Đang xử lý',
+        'shipped': 'Đang giao',
+        'delivered': 'Đã giao',
+        'cancelled': 'Đã hủy'
+      };
+      return statusMap[status] || status;
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      // Status filter
+      document.getElementById('statusFilter').addEventListener('change', function() {
+        const status = this.value;
+        window.location.href = status ? `/admin/orders?status=${status}` : '/admin/orders';
+      });
+      
+      // Update status modal
+      const updateModal = document.getElementById('updateStatusModal');
+      updateModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const orderId = button.getAttribute('data-id');
+        const currentStatus = button.getAttribute('data-status');
+        
+        document.getElementById('orderId').value = orderId;
+        document.getElementById('orderStatus').value = currentStatus;
+      });
+      
+      // Update status
+      document.getElementById('updateStatusBtn').addEventListener('click', function() {
+        const orderId = document.getElementById('orderId').value;
+        const status = document.getElementById('orderStatus').value;
+        
+        fetch(`/api/orders/${orderId}/status`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ status })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.message) {
+            alert('Cập nhật trạng thái đơn hàng thành công!');
+            location.reload();
+          } else {
+            alert('Lỗi: ' + data.error);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Đã xảy ra lỗi khi cập nhật trạng thái đơn hàng');
+        });
+      });
+    });
